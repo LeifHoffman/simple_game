@@ -1,0 +1,15 @@
+{
+ "Common":{
+            "Goblin":{"HP":5, "ATK":1, "DEF":0}, 
+            "Poison Spider":{"HP":3, "ATK":2, "DEF":0},
+            "Monolith":{"HP":5, "ATK":0, "DEF":1}
+            },
+
+ "Uncommon":{
+
+            },
+
+ "Rare":{
+
+        }
+}

@@ -1,0 +1,17 @@
+{"Common":{
+    "Sword Pendant":{
+        "ID":1,
+        "Description":"A simple pendant in the shape of a sword. Increase ATK by 1."
+    },
+    "Shield Ring":{
+        "ID":2,
+        "Description":"A ring that has a miniature shield on it. Increases DEF by 1."
+    },
+    "Mage Monocle":{
+        "ID":3,
+        "Description":"A tinge of magic seems to radiate from this monocle. Increases MG by 1."
+    }
+},
+ "Uncommon":{},
+ "Rare":{},
+  "Legendary":{}}
