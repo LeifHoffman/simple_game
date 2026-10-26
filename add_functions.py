@@ -88,3 +88,4 @@ def spawnArtifact(player=0, luck=0, rewards=3):
             checkArtiPerms(player)
             time.sleep(2)
             return
+

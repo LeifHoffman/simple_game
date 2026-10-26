@@ -41,7 +41,7 @@ def loadEnemies(rng = 0, count = 1):
 
 # Function for handling damage
 def dealDamage(target, attacker, modifier=1):
-    init_damage = math.ceil(attacker.damage/modifier)
+    init_damage = math.ceil((attacker.damage + attacker.nextDamage)*modifier)
     # Ignore zero attack stat turns
     if init_damage == 0:
         styleprint(f"{attacker.name} couldn't deal damage!")
@@ -58,6 +58,25 @@ def dealDamage(target, attacker, modifier=1):
         if target.hp <= 0:
             styleprint(f"{target.name} was defeated!")
             print("")
+
+# Function for handling healing
+def recoverHealth(target, amount, percentage):
+    heal = amount
+    # Heal by target HP percent (round up) if percentage is true
+    if percentage == True:
+        heal = math.ceil(target.maxHp * amount/100)
+        target.hp += heal
+    # Heal by amount otherwise
+    else:
+        target.hp += heal
+
+    # Report heal amount if not full. If full or higher, set to max
+    if target.hp >= target.maxHp:
+        target.hp == target.maxHp
+        styleprint(f"{target.name} was fully healed!")
+    else:
+        styleprint(f"{target.name} was healed for {heal} HP!")
+    print("")
 
 # Check enemy status
 def activeEnemies(enemies):
@@ -107,25 +126,75 @@ def skillList(player, enemies):
                     print("")
                     time.sleep(1)
                     for target in enemies:
-                        dealDamage(target, player, 2)
+                        dealDamage(target, player, 1/2)
                         time.sleep(1)
+                    player.nextDamage = 0
                 case "Paladin":
-                    pass
+                    # Radiant rain skill (attack all enemies for player.damage*2, uses MG)
+                    if player.magic > 0:
+                        styleprint("With a prayer, light sunders your enemies!")
+                        print("")
+                        for target in enemies:
+                            dealDamage(target, player, 2)
+                            time.sleep(1)
+                        player.magic -= 1
+                    else:
+                        styleprint("Not enough MG!")
+                        return False
                 case "Wizard":
-                    pass
+                    # Fire spark skill (attack one enemy for player.damage * 4, uses MG)
+                    if player.magic > 0:
+                        styleprint("Fire spark on who?")
+                        print("")
+                        styleprint("Target: ")
+                        target = int(input())
+                        if target > len(enemies):
+                            styleprint("Enemy doesn't exist!")
+                            return False
+                        elif enemies[target-1].hp <= 0:
+                            styleprint("Enemy is already defeated!")
+                            return False
+                        else:
+                            styleprint(f"You let loose a flame on {enemies[target-1].name}!")
+                            print("")
+                            time.sleep(1)
+                            dealDamage(enemies[target-1], player, 4)
+                            player.magic -= 1
+                        time.sleep(1)
+                    else:
+                        styleprint("Not enough MG!")
+                        return False
             return True
         case 2:
             match player.name:
                 case "Knight":
                     # Buff damage stat for remainder of the fight
-                    styleprint("You brace yourself and prepare your muscles! ATK increased by 1 for this combat!")
+                    styleprint("You brace yourself and prepare your muscles! ATK increased by 1 for next attack!")
                     print("")
-                    player.damage += 1
+                    player.nextDamage += 1
                     time.sleep(1)
                 case "Paladin":
-                    pass
+                    # Holy recovery skill (heal equal to 20% HP, uses MG)
+                    if player.magic > 0:
+                        styleprint("You held your symbol aloft, and felt your wounds heal!")
+                        print("")
+                        recoverHealth(player, 20, True)
+                        player.magic -= 1
+                    else:
+                        styleprint("Not enough MG!")
+                        return False
                 case "Wizard":
-                    pass
+                    # Electric chain skill (attack all enemies for player.damage * 3, uses MG)
+                    if player.magic > 0:
+                        styleprint("Electricity bolts between your enemies!")
+                        print("")
+                        for target in enemies:
+                            dealDamage(target, player, 3)
+                            time.sleep(1)
+                        player.magic -= 1
+                    else:
+                        styleprint("Not enough MG!")
+                        return False
             return True
 
         # Handle default case for when improper action occurs
@@ -134,7 +203,10 @@ def skillList(player, enemies):
             return False
 
 # Handle combat round
-def combatRound(player, enemies):
+def combatRound(player, enemies, turnCount):
+    # Display round number
+    styleprint(f"Round #{turnCount}")
+    print("\n")
     # Display living enemies
     styleprint("Enemies:")
     print("")
@@ -144,8 +216,8 @@ def combatRound(player, enemies):
             print("")
     print("")
 
-    # Print player and their hp
-    styleprint(f"---{player.name} HP: {player.hp}/{player.maxHp}")
+    # Print player and their hp + mg
+    styleprint(f"---{player.name} HP: {player.hp}/{player.maxHp} MG: {player.magic}")
     print("")
 
     # Prompt option
@@ -178,7 +250,8 @@ def combatRound(player, enemies):
             dealDamage(enemies[target-1], player)
             actionSuccess = True
             time.sleep(2)
-    # TODO Add magic/skill system per character
+            player.nextDamage = 0
+    # Handle magic/skill system
     if choice == "2":
         styleprint("What skill do you want to use?")
         print("")
@@ -219,34 +292,13 @@ def combatRound(player, enemies):
     else:
         styleprint("Enemies attack!")
         print("")
+        time.sleep(1)
         for enemy in enemies:
             if enemy.hp > 0:
                 dealDamage(player, enemy)
                 time.sleep(1)
             if playerAlive(player) == False:
                 return
-
-# Test/Prologue Combat
-def startPrologueCombat(player):
-    # Alert player of enemy
-    subprocess.run("cls", shell=True, check=True)
-    styleprint("An enemy approaches!")
-    time.sleep(2)
-    subprocess.run("cls", shell=True, check=True)
-
-    # Create one enemy
-    enemies = loadEnemies()
-    while True:
-        combatRound(player, enemies)
-        if activeEnemies(enemies) == False:
-            styleprint("All enemies are defeated!")
-            time.sleep(2)
-            break
-        if playerAlive(player) == False:
-            styleprint(f"{player.name} was defeated...")
-            time.sleep(2)
-            break
-        subprocess.run("cls", shell=True, check=True)
 
 # Regular Combat
 def startCombat(player):
@@ -256,10 +308,13 @@ def startCombat(player):
     time.sleep(2)
     subprocess.run("cls", shell=True, check=True)
 
+    # Create turn counter
+    turn = 0
     # Create enemies
     enemies = loadEnemies(0, random.randrange(1,3))
     while True:
-        combatRound(player, enemies)
+        turn += 1
+        combatRound(player, enemies, turn)
         if activeEnemies(enemies) == False:
             styleprint("All enemies are defeated!")
             time.sleep(2)
@@ -272,12 +327,17 @@ def startCombat(player):
 
 # Test Combat
 if __name__ == "__main__":
-    p = Hero("Dummy", 10, 10, 1, 1, 1, 1, 0, 1, 1)
+    styleprint("Enter test hero name:")
+    name = (input()).capitalize()
+    p = Hero(name = name, hp = 10, maxHp=10, damage=1, defense=1, baseDamage=1, baseDefense=1, experience=0, baseMagic=1, magic=1)
     e = []
+    t = 0
     for i in range(3):
         e.append(Enemy("Dummy", 999, 999, 0, 0, 0, 0, 0))
     while True:
-        combatRound(p, e)
+        subprocess.run("cls", shell=True, check=True)
+        t += 1
+        combatRound(p, e, t)
         if activeEnemies(e) == False:
             styleprint("All enemies are defeated!")
             time.sleep(2)

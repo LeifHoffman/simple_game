@@ -59,7 +59,7 @@ while playerChoice not in heroChoices:
                 styleprint("Not a valid answer...")
         
 # Set player stats
-playerStats = Hero(playerChoice, heroInfo[playerChoice]['HP'], heroInfo[playerChoice]['HP'], heroInfo[playerChoice]['ATK'], heroInfo[playerChoice]['ATK'], heroInfo[playerChoice]['DEF'], heroInfo[playerChoice]['DEF'], baseMagic=heroInfo[playerChoice]['MG'], magic=heroInfo[playerChoice]['MG'])
+playerStats = Hero(name = playerChoice, hp = heroInfo[playerChoice]['HP'], maxHp = heroInfo[playerChoice]['HP'], damage = heroInfo[playerChoice]['ATK'], baseDamage=heroInfo[playerChoice]['ATK'], defense=heroInfo[playerChoice]['DEF'], baseDefense=heroInfo[playerChoice]['DEF'], baseMagic=heroInfo[playerChoice]['MG'], magic=heroInfo[playerChoice]['MG'])
 
 # Opening story dialogue
 storyStart()
@@ -69,12 +69,10 @@ subprocess.run("cls", shell=True, check=True)
 spawnArtifact(playerStats, 0)
 
 # Initiate Prologue Fight
-startPrologueCombat(playerStats)
+startCombat(playerStats)
 subprocess.run("cls", shell=True, check=True)
-checkArtiPerms(playerStats)
 
 # Run infinite battle loop (Or don't, it's whatever you feel like)
 while True:
     startCombat(playerStats)
-    checkArtiPerms(playerStats)
     
