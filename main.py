@@ -63,7 +63,6 @@ playerStats = Hero(name = playerChoice, hp = heroInfo[playerChoice]['HP'], maxHp
 
 # Opening story dialogue
 triggerStory(0)
-subprocess.run("cls", shell=True, check=True)
 
 # Test to see if artifact spawns work
 spawnArtifact(playerStats, 0)
