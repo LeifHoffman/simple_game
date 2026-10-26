@@ -62,15 +62,11 @@ while playerChoice not in heroChoices:
 playerStats = Hero(name = playerChoice, hp = heroInfo[playerChoice]['HP'], maxHp = heroInfo[playerChoice]['HP'], damage = heroInfo[playerChoice]['ATK'], baseDamage=heroInfo[playerChoice]['ATK'], defense=heroInfo[playerChoice]['DEF'], baseDefense=heroInfo[playerChoice]['DEF'], baseMagic=heroInfo[playerChoice]['MG'], magic=heroInfo[playerChoice]['MG'])
 
 # Opening story dialogue
-storyStart()
+triggerStory(0)
 subprocess.run("cls", shell=True, check=True)
 
 # Test to see if artifact spawns work
 spawnArtifact(playerStats, 0)
-
-# Initiate Prologue Fight
-startCombat(playerStats)
-subprocess.run("cls", shell=True, check=True)
 
 # Run infinite battle loop (Or don't, it's whatever you feel like)
 while True:

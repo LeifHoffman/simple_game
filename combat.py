@@ -34,7 +34,7 @@ def loadEnemies(rng = 0, count = 1):
         enemyID = enemyOption[random.randrange(0, len(enemyOption))]
 
         # Make enemy and add to list
-        enemy = Enemy(enemyID, enemyInfo[rarity][enemyID]["HP"], enemyInfo[rarity][enemyID]["HP"], enemyInfo[rarity][enemyID]["ATK"], enemyInfo[rarity][enemyID]["ATK"], enemyInfo[rarity][enemyID]["DEF"], enemyInfo[rarity][enemyID]["DEF"])
+        enemy = Enemy(name = enemyID, hp = enemyInfo[rarity][enemyID]["HP"], maxHp = enemyInfo[rarity][enemyID]["HP"], damage = enemyInfo[rarity][enemyID]["ATK"], baseDamage=enemyInfo[rarity][enemyID]["ATK"], defense=enemyInfo[rarity][enemyID]["DEF"], baseDefense=enemyInfo[rarity][enemyID]["DEF"])
         enemyList.append(enemy)
 
     return enemyList
@@ -202,35 +202,47 @@ def skillList(player, enemies):
             styleprint("Skill isn't available or doesn't exist!")
             return False
 
+# Handle checking player status
+def playerStatus(player):
+    subprocess.run("cls", shell=True, check=True)
+    styleprint("Current player stats:\n")
+    styleprint(f"HP: {player.hp}/{player.maxHp}\n")
+    styleprint(f"ATK: Base = {player.baseDamage}, Current = {player.damage + player.nextDamage}\n")
+    styleprint(f"DEF: Base = {player.defense}, Current = {player.defense + player.nextDefense}\n")
+    styleprint("View artifacts?\n(Y/N): ")
+    choice = input().upper()
+    if choice == "Y":
+        styleprint("Which artifact to view?\n")
+        for i in range(len(player.artifacts)):
+            styleprint(f"{i+1}. {player.artifacts[i].name}\n")
+        styleprint("Option: ")
+        relicNum = int(input())
+        if relicNum >= 1 and relicNum <= len(player.artifacts):
+            styleprint(f"{player.artifacts[relicNum-1].name}: {player.artifacts[relicNum-1].description}\n")
+        else:
+            styleprint("Invalid number!")
+
+
 # Handle combat round
 def combatRound(player, enemies, turnCount):
     # Display round number
-    styleprint(f"Round #{turnCount}")
-    print("\n")
+    styleprint(f"Round #{turnCount}\n\n")
     # Display living enemies
-    styleprint("Enemies:")
-    print("")
+    styleprint("Enemies:\n")
     for i in range(len(enemies)):
         if enemies[i].hp > 0:
-            styleprint(f"{i+1}: {enemies[i].name} ")
-            print("")
-    print("")
+            styleprint(f"{i+1}: {enemies[i].name} \n")
 
     # Print player and their hp + mg
-    styleprint(f"---{player.name} HP: {player.hp}/{player.maxHp} MG: {player.magic}")
-    print("")
+    styleprint(f"\n---{player.name} HP: {player.hp}/{player.maxHp} MG: {player.magic}\n")
 
     # Prompt option
-    styleprint("What would you like to do?")
-    print("")
-    styleprint("1. Attack")
-    print("")
-    styleprint("2. Skills")
-    print("")
-    styleprint("3. Check Enemy")
-    print("")
-    styleprint("4. Item")
-    print("")
+    styleprint("What would you like to do?\n")
+    styleprint("1. Attack\n")
+    styleprint("2. Skills\n")
+    styleprint("3. Check Enemy\n")
+    styleprint("4. Item\n")
+    styleprint("5. Stats\n")
     styleprint("Action: ")
     choice = input()
 
@@ -282,6 +294,9 @@ def combatRound(player, enemies, turnCount):
     # TODO Add item iteraction
     if choice == "4":
         pass
+    # Handle reading player status / artifacts
+    if choice == "5":
+        playerStatus(player)
     # Pause temporarily to infom player on action failure
     if actionSuccess == False:
         time.sleep(2)
@@ -330,6 +345,7 @@ if __name__ == "__main__":
     styleprint("Enter test hero name:")
     name = (input()).capitalize()
     p = Hero(name = name, hp = 10, maxHp=10, damage=1, defense=1, baseDamage=1, baseDefense=1, experience=0, baseMagic=1, magic=1)
+    spawnArtifact(p, 0)
     e = []
     t = 0
     for i in range(3):
